@@ -10,6 +10,7 @@ class AppColors {
   static const Color greyLighter = Color(0xFFF3F4F6);
   static const Color greyDarker = Color(0xFF666C8E);
   static const Color blackLighter = Color(0xFF555A77);
+  static const Color red = Color(0xffF2796B);
 }
 
 class TextFieldColors {
