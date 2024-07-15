@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -116,45 +118,23 @@ class _LoginPageState extends State<LoginPage> {
                           textFieldEntity: _singInEntity[1],
                         ),
                         const Spacer(),
-                        context.watch<AuthProvider>().isLoadingLogin
-                            ? ButtonLoading(
-                                height: 43,
-                                width: ResponsiveUtils(context)
-                                    .getMediaQueryWidth(),
-                                buttonColor: AppColors.red,
-                                loadingColor: AppColors.white,
-                              )
-                            : ButtonPrimary(
-                                "Login",
-                                width: ResponsiveUtils(context)
-                                    .getMediaQueryWidth(),
-                                height: 43,
-                                buttonColor: AppColors.red,
-                                onPressed: () async {
-                                  if (_formLoginKey.currentState!.validate()) {
-                                    final User user = User(
-                                      email:
-                                          _singInEntity[0].textController.text,
-                                      password:
-                                          _singInEntity[0].textController.text,
-                                    );
-
-                                    final provider = Provider.of<AuthProvider>(
-                                        context,
-                                        listen: false);
-
-                                    final result = await provider.login(user);
-
-                                    if (result) {
-                                      widget._onLogin;
-                                    } else {
-                                      // ignore: use_build_context_synchronously
-                                      context.errorDialog(
-                                          message: provider.message);
-                                    }
-                                  }
-                                },
-                              ),
+                        Consumer<AuthProvider>(
+                          builder: (ctx, provider, child) {
+                            return provider.isLoadingLogin
+                                ? const ButtonLoading(
+                                    width: double.infinity,
+                                    height: 43,
+                                    buttonColor: AppColors.red,
+                                  )
+                                : ButtonPrimary(
+                                    "Login",
+                                    width: double.infinity,
+                                    height: 43,
+                                    buttonColor: AppColors.red,
+                                    onPressed: () => _onSubmitted(provider),
+                                  );
+                          },
+                        ),
                         const Spacer(),
                         RowPadding(
                           padding: EdgeInsets.only(
@@ -172,7 +152,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                             TextButton(
-                              onPressed: () => widget._onRegister,
+                              onPressed: () => widget._onRegister(),
                               child: Text(
                                 "Sign Up",
                                 style: AppTextStyle.bold.copyWith(
@@ -193,6 +173,100 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
+    );
+  }
+
+  void _onSubmitted(AuthProvider state) async {
+    if (_formLoginKey.currentState?.validate() ?? false) {
+      FocusScope.of(context).unfocus();
+
+      final User user = User(
+        email: _singInEntity[0].textController.text,
+        password: _singInEntity[1].textController.text,
+      );
+
+      final result = await state.login(user);
+      if (result) {
+        widget._onLogin();
+      } else {
+        errorDialog(message: state.message);
+      }
+    }
+  }
+
+  void errorDialog({required String message}) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        bool isClose = false;
+
+        void close(bool close) {
+          if (close) Navigator.pop(context);
+        }
+
+        Timer.periodic(const Duration(seconds: 2), (timer) {
+          timer.cancel();
+          isClose = !isClose;
+          close(isClose);
+        });
+
+        return AlertDialog(
+          insetPadding: EdgeInsets.symmetric(
+            horizontal: ResponsiveUtils(context).getMediaQueryWidth() > 430
+                ? ((ResponsiveUtils(context).getMediaQueryWidth() - 430) / 2) +
+                    AppGap.extraLarge * 2
+                : AppGap.extraLarge * 2,
+          ),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: GestureDetector(
+                        onTap: () {
+                          isClose = !isClose;
+                          close(isClose);
+                        },
+                        child: Image.asset(
+                          AppIcon.close,
+                          width: AppIconSize.large,
+                          height: AppIconSize.large,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: Image.asset(
+                        AppIcon.error,
+                        width: AppIconSize.dialog,
+                        height: AppIconSize.dialog,
+                        color: Colors.red,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Gap(height: AppGap.medium),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                maxLines: 8,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyle.semiBold,
+              ),
+              const Gap(height: AppGap.normal),
+            ],
+          ),
+        );
+      },
     );
   }
 }

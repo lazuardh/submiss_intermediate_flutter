@@ -2,68 +2,69 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../lib.dart';
 
-/// todo 3: create Auth Repository and
-/// add some method for auth process
+/// todo mengelola logika bisnis dan abstraksi data dari datasource
 class AuthRepository {
-  final AuthDataSource _remoteDataSource;
+  final AuthRemoteDataSource _remoteDataSource;
 
   AuthRepository(this._remoteDataSource);
 
   final String stateKey = 'state';
+  final String userKey = "user";
+  final String tokenKey = 'token';
 
-  Future<String> createUser(Register register) async {
-    try {
-      return await _remoteDataSource.createUser(register);
-    } catch (e) {
-      print("Error in repository: $e");
-      throw Exception(e);
-    }
+  Future<String> createUser(String name, String email, String password) async {
+    return await _remoteDataSource.signUp(name, email, password);
   }
 
+  /* === memeriksa sesi login === */
   Future<bool> isLoggedIn() async {
     final preference = await SharedPreferences.getInstance();
-
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 2));
     return preference.getBool(stateKey) ?? false;
   }
 
-  Future<bool> login() async {
+  Future<bool> login(User user) async {
     final preferences = await SharedPreferences.getInstance();
+    final userResponse =
+        await _remoteDataSource.login(user.email!, user.password!);
 
-    await Future.delayed(const Duration(seconds: 3));
+    print("id user me: ${userResponse.loginResult.userId}");
+
+    await preferences.setString(userKey, user.toJson());
+    await preferences.setString(tokenKey, userResponse.loginResult.token);
+    // await Future.delayed(const Duration(seconds: 2));
+
     return preferences.setBool(stateKey, true);
   }
 
   Future<bool> logout() async {
     final preferences = await SharedPreferences.getInstance();
 
-    await Future.delayed(const Duration(seconds: 3));
+    await preferences.remove(tokenKey);
+    await preferences.remove(userKey);
+    await Future.delayed(const Duration(seconds: 2));
     return preferences.setBool(stateKey, false);
   }
 
-  /// todo 4: add user manager to handle user information like email and password
-  final String userKey = "user";
+  /* ======================================= */
+
+  /* === menyimpan informasi pengguna saat melakukan registrasi akun === */
 
   Future<bool> saveUser(User user) async {
     final preferences = await SharedPreferences.getInstance();
-
-    await _remoteDataSource.login(user);
-
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 2));
     return preferences.setString(userKey, user.toJson());
   }
 
   Future<bool> deleteUser() async {
     final preferences = await SharedPreferences.getInstance();
-
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 2));
     return preferences.setString(userKey, "");
   }
 
   Future<User?> getUser() async {
     final preferences = await SharedPreferences.getInstance();
-
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 2));
     final json = preferences.getString(userKey) ?? "";
     User? user;
     try {
@@ -72,5 +73,12 @@ class AuthRepository {
       user = null;
     }
     return user;
+  }
+
+  /* ======================================================= */
+
+  Future<String?> getToken() async {
+    final preferences = await SharedPreferences.getInstance();
+    return preferences.getString(tokenKey);
   }
 }

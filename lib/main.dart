@@ -16,8 +16,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late MyRouteDelegate myRouterDelegate;
-
-  /// todo 6: add variable for create instance
   late AuthProvider authProvider;
 
   @override
@@ -25,7 +23,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
 
     final authRepository = AuthRepository(
-      AuthDataSource(),
+      AuthRemoteDataSource(),
     );
 
     authProvider = AuthProvider(authRepository);
@@ -41,7 +39,40 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider<AuthProvider>(
           create: (context) => AuthProvider(
             AuthRepository(
-              AuthDataSource(),
+              AuthRemoteDataSource(),
+            ),
+          ),
+        ),
+        ChangeNotifierProvider<StoryProvider>(
+          create: (context) => StoryProvider(
+            StoryRepository(
+              StoryRemoteDataSource(),
+              AuthRepository(
+                AuthRemoteDataSource(),
+              ),
+            ),
+          ),
+        ),
+        ChangeNotifierProvider<DetailStoryProvider>(
+          create: (context) => DetailStoryProvider(
+            StoryRepository(
+              StoryRemoteDataSource(),
+              AuthRepository(
+                AuthRemoteDataSource(),
+              ),
+            ),
+          ),
+        ),
+        ChangeNotifierProvider<CameraProvider>(
+          create: (context) => CameraProvider(),
+        ),
+        ChangeNotifierProvider<UploadProvider>(
+          create: (context) => UploadProvider(
+            StoryRepository(
+              StoryRemoteDataSource(),
+              AuthRepository(
+                AuthRemoteDataSource(),
+              ),
             ),
           ),
         )

@@ -1,25 +1,29 @@
-class RegisterResult {
-  bool error;
-  String message;
-  Register loginResult;
+import 'dart:convert';
 
-  RegisterResult({
+class ResponseRegister {
+  bool error;
+  String? message;
+
+  ResponseRegister({
     required this.error,
     required this.message,
-    required this.loginResult,
   });
 
-  factory RegisterResult.fromJson(Map<String, dynamic> json) => RegisterResult(
-        error: json["error"],
-        message: json["message"],
-        loginResult: Register.fromJson(json["loginResult"]),
-      );
+  @override
+  String toString() => 'RegisterResponse (error: $error, message: $message)';
 
-  Map<String, dynamic> toJson() => {
-        "error": error,
-        "message": message,
-        "loginResult": loginResult.toJson(),
+  factory ResponseRegister.fromMap(Map<String, dynamic> map) =>
+      ResponseRegister(error: map['error'], message: map['message']);
+
+  Map<String, dynamic> toMap() => {
+        'error': error,
+        'message': message,
       };
+
+  String toJson() => json.encode(toMap());
+
+  factory ResponseRegister.fromJson(String source) =>
+      ResponseRegister.fromMap(jsonDecode(source));
 }
 
 class Register {
@@ -33,15 +37,23 @@ class Register {
     required this.password,
   });
 
-  factory Register.fromJson(Map<String, dynamic> json) => Register(
+  @override
+  String toString() => 'User(email: $email, password: $password)';
+
+  factory Register.fromMap(Map<String, dynamic> json) => Register(
         name: json["name"],
         email: json["email"],
         password: json["password"],
       );
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toMap() => {
         "name": name,
         "email": email,
         "password": password,
       };
+
+  String toJson() => json.encode(toMap());
+
+  factory Register.fromJson(String source) =>
+      Register.fromMap(jsonDecode(source));
 }

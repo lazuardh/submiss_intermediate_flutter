@@ -180,6 +180,43 @@ extension CustomDialog on context.BuildContext {
       },
     );
   }
+
+  void loadingDialog({Key? key, bool isDownload = false}) {
+    showDialog(
+      context: this,
+      barrierDismissible: false,
+      builder: (context) {
+        final responsive = ResponsiveUtils(context);
+        return Dialog(
+          backgroundColor: AppColors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppBorderRadius.large),
+          ),
+          insetPadding: EdgeInsets.symmetric(
+            horizontal: (responsive.getMediaQueryWidth() - 200) / 2,
+          ),
+          child: SizedBox(
+            height: 150,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const LoadingIndicator(),
+                Visibility(
+                  visible: isDownload,
+                  child: const Padding(
+                    padding: EdgeInsets.only(top: AppGap.normal),
+                    child: Text("Tunggu Sebentar..."),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
 class BaseDialogCard extends StatelessWidget {

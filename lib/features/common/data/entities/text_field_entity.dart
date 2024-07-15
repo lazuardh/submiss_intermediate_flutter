@@ -134,6 +134,23 @@ class TextFieldEntity {
     ),
   ];
 
+  static final List<TextFieldEntity> authAddStory = [
+    TextFieldEntity(
+      textController: TextEditingController(text: ''),
+      hint: "Description",
+      keyboardType: TextInputType.streetAddress,
+      focusNode: FocusNode(),
+      textInputAction: TextInputAction.done,
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return 'Please enter your Description';
+        }
+
+        return null;
+      },
+    ),
+  ];
+
   static final List<TextFieldEntity> authForgotPassword = [
     TextFieldEntity(
       textController: TextEditingController(text: ''),

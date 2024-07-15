@@ -10,7 +10,6 @@ class MyRouteDelegate extends RouterDelegate
   MyRouteDelegate(
     this.authRepository,
   ) : _navigatorKey = GlobalKey<NavigatorState>() {
-    /// todo 9: create initial function to check user logged in.
     _init();
   }
 
@@ -24,15 +23,13 @@ class MyRouteDelegate extends RouterDelegate
 
   String? selectedStory;
 
-  /// todo 8: add historyStack variable to maintaining the stack
   List<Page> historyStack = [];
   bool? isLoggedIn;
   bool isRegister = false;
-  bool showStoryPages = true;
+  bool isAddStory = false;
 
   @override
   Widget build(BuildContext context) {
-    /// todo 11: create conditional statement to declare historyStack based on  user logged in.
     if (isLoggedIn == null) {
       historyStack = _splashStack;
     } else if (isLoggedIn == true) {
@@ -42,16 +39,14 @@ class MyRouteDelegate extends RouterDelegate
     }
     return Navigator(
       key: navigatorKey,
-
-      /// todo 10: change the list with historyStack
       pages: historyStack,
-
       onPopPage: (route, result) {
         final didPop = route.didPop(result);
         if (!didPop) {
           return false;
         }
 
+        isAddStory = false;
         isRegister = false;
         selectedStory = null;
         notifyListeners();
@@ -60,13 +55,9 @@ class MyRouteDelegate extends RouterDelegate
     );
   }
 
-  @override
-  Future<void> setNewRoutePath(configuration) async {}
-
-  /// todo 12: add these variable to support history stack
   List<Page> get _splashStack => const [
         MaterialPage(
-          key: ValueKey("SplashScreen"),
+          key: ValueKey("SplashPage"),
           child: SplashPage(),
         ),
       ];
@@ -75,13 +66,10 @@ class MyRouteDelegate extends RouterDelegate
         MaterialPage(
           key: const ValueKey("LoginPage"),
           child: LoginPage(
-            /// todo 17: add onLogin and onRegister method to update the state
             onLogin: () {
               isLoggedIn = true;
               notifyListeners();
             },
-
-            /// todo 17: add onLogin and onRegister method to update the state
             onRegister: () {
               isRegister = true;
               notifyListeners();
@@ -96,6 +84,10 @@ class MyRouteDelegate extends RouterDelegate
                 isRegister = false;
                 notifyListeners();
               },
+              onLogin: () {
+                isRegister = false;
+                notifyListeners();
+              },
             ),
           ),
       ];
@@ -104,14 +96,30 @@ class MyRouteDelegate extends RouterDelegate
         MaterialPage(
           key: const ValueKey("StoryListPage"),
           child: StoryPage(
-            /// todo 21: add onLogout method to update the state and
-
             onLogout: () {
               isLoggedIn = false;
               notifyListeners();
             },
+            onTapped: (String storyId) {
+              selectedStory = storyId;
+              notifyListeners();
+            },
+            onAddStory: () {
+              isAddStory = true;
+              notifyListeners();
+            },
           ),
         ),
+        if (isAddStory == true)
+          MaterialPage(
+            key: const ValueKey("addStory"),
+            child: StoryAdd(
+              onAddStory: () {
+                isAddStory = false;
+                notifyListeners();
+              },
+            ),
+          ),
         if (selectedStory != null)
           MaterialPage(
             key: const ValueKey('StoryDetailPage'),
@@ -119,11 +127,8 @@ class MyRouteDelegate extends RouterDelegate
               id: selectedStory!,
             ),
           ),
-        if (showStoryPages) ...{
-          const MaterialPage(
-            key: ValueKey('StoryAddpage'),
-            child: StoryAdd(),
-          ),
-        }
       ];
+
+  @override
+  Future<void> setNewRoutePath(configuration) async {}
 }
