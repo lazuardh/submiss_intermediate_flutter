@@ -4,5 +4,4 @@ class UrlConstant {
   static const register = '$baseUrl/register';
   static const login = '$baseUrl/login';
   static const stories = '$baseUrl/stories';
-  static const detailStory = '$baseUrl/stories/:id';
 }
