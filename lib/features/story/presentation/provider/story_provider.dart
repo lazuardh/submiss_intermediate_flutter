@@ -5,63 +5,66 @@ import '../../../../lib.dart';
 class StoryProvider extends ChangeNotifier {
   final StoryRepository _storyRepository;
 
-  StoryProvider(this._storyRepository) {
-    _state = StoryState.loading;
-    _currentPage = 1;
-    getMoreStories();
-  }
+  StoryProvider(this._storyRepository);
 
-  late StoryState _state;
+  int? pageItems = 1;
+  int limit = 5;
+  bool storyError = false;
+
+  List<Story> stories = [];
+
+  StoryState _state = StoryState.initial;
   StoryState get state => _state;
-
-  late int _currentPage;
-
-  List<ListStory> _stories = [];
-  List<ListStory> get stories => _stories;
 
   String _message = '';
   String get message => _message;
 
-  bool _isLoadingMore = false;
-  bool get isLoadingMore => _isLoadingMore;
+  Future<void> refreshStories() async {
+    try {
+      _state = StoryState.loading;
+      notifyListeners();
 
-  bool _hasMoreStories = true;
-  bool get hasMoreStories => _hasMoreStories;
-
-  Future<void> getMoreStories() async {
-    if (_isLoadingMore || !_hasMoreStories) return;
-    _isLoadingMore = true;
-    notifyListeners();
-
-    await _fetchStories();
-
-    _isLoadingMore = false;
-    notifyListeners();
+      final response = await _storyRepository.getStories(1, limit);
+      stories = response;
+      pageItems = 2;
+      _message = "Refreshing Story Success";
+      storyError = false;
+      _state = StoryState.loaded;
+      notifyListeners();
+    } catch (e) {
+      _state = StoryState.error;
+      storyError = true;
+      _message = '$e';
+      notifyListeners();
+    }
   }
 
-  Future<void> _fetchStories() async {
+  Future<void> fetchStories() async {
     try {
-      final response =
-          await _storyRepository.getStories(page: _currentPage, size: 5);
-
-      if (_currentPage == 1 && response.isEmpty) {
-        _message = 'No stories available';
-        _state = StoryState.noData;
-      } else {
-        if (response.isEmpty) {
-          _hasMoreStories = false;
-        } else {
-          _stories.addAll(response);
-          _state = StoryState.hasData;
-          _currentPage++;
-        }
+      if (pageItems == 1) {
+        _state = StoryState.loading;
+        notifyListeners();
       }
-    } catch (error) {
-      print('Error fetching stories: $error');
-      _message = 'Error: $error';
-      _state = StoryState.error;
-    }
 
-    notifyListeners();
+      final response = await _storyRepository.getStories(pageItems!, limit);
+
+      if (response.length < limit) {
+        pageItems = null;
+      } else {
+        pageItems = pageItems! + 1;
+      }
+
+      stories.addAll(response);
+
+      _message = "Fetching Story Success";
+      storyError = false;
+      _state = StoryState.loaded;
+      notifyListeners();
+    } catch (e) {
+      _state = StoryState.error;
+      storyError = true;
+      _message = '$e';
+      notifyListeners();
+    }
   }
 }

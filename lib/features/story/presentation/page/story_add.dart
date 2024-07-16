@@ -106,6 +106,8 @@ class _StoryAddState extends State<StoryAdd> {
   _onUpload() async {
     final storyProvider = context.read<CameraProvider>();
     final uploadProvider = context.read<UploadProvider>();
+    final refreshProvider = context.read<StoryProvider>();
+
     final ScaffoldMessengerState scaffoldMessengerState =
         ScaffoldMessenger.of(context);
 
@@ -131,6 +133,8 @@ class _StoryAddState extends State<StoryAdd> {
     scaffoldMessengerState.showSnackBar(
       SnackBar(content: Text(uploadProvider.message)),
     );
+
+    refreshProvider.refreshStories();
   }
 
   _onGalleryView() async {

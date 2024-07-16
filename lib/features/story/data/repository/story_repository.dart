@@ -1,7 +1,3 @@
-import 'dart:io';
-
-import 'package:image_picker/image_picker.dart';
-
 import '../../../../lib.dart';
 
 class StoryRepository {
@@ -10,17 +6,16 @@ class StoryRepository {
 
   StoryRepository(this._storyRemoteDataSource, this._authRepository);
 
-  Future<List<ListStory>> getStories(
-      {required int page, required int size}) async {
+  Future<List<Story>> getStories([int page = 1, int limit = 5]) async {
     final token = await _authRepository.getToken();
 
     if (token != null) {
       final story = await _storyRemoteDataSource.getAllStory(
         token,
         page: page,
-        size: size,
+        size: limit,
       );
-      return story.listStory;
+      return story.list;
     } else {
       throw Exception("User not logged in");
     }

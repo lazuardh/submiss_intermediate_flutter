@@ -32,7 +32,7 @@ class DetailStoryProvider extends ChangeNotifier {
       print(response);
 
       _detailStory = response;
-      _state = StoryState.hasData;
+      _state = StoryState.loaded;
       notifyListeners();
     } catch (error) {
       _message = 'Error: $error';
