@@ -1,35 +1,35 @@
 import 'dart:convert';
 
-class Story {
+class StoryResponse {
   final bool error;
   final String message;
-  final List<ListStory> listStory;
+  final List<Story> list;
 
-  Story({
+  StoryResponse({
     required this.error,
     required this.message,
-    required this.listStory,
+    required this.list,
   });
 
-  factory Story.fromJson(String str) => Story.fromMap(json.decode(str));
+  factory StoryResponse.fromJson(String str) =>
+      StoryResponse.fromMap(json.decode(str));
 
   String toJson() => json.encode(toMap());
 
-  factory Story.fromMap(Map<String, dynamic> json) => Story(
+  factory StoryResponse.fromMap(Map<String, dynamic> json) => StoryResponse(
         error: json["error"],
         message: json["message"],
-        listStory: List<ListStory>.from(
-            json["listStory"].map((x) => ListStory.fromMap(x))),
+        list: List<Story>.from(json["listStory"].map((x) => Story.fromMap(x))),
       );
 
   Map<String, dynamic> toMap() => {
         "error": error,
         "message": message,
-        "listStory": List<dynamic>.from(listStory.map((x) => x.toMap())),
+        "listStory": List<dynamic>.from(list.map((x) => x.toMap())),
       };
 }
 
-class ListStory {
+class Story {
   final String id;
   final String name;
   final String description;
@@ -38,7 +38,7 @@ class ListStory {
   final double? lat;
   final double? lon;
 
-  ListStory({
+  Story({
     required this.id,
     required this.name,
     required this.description,
@@ -48,11 +48,11 @@ class ListStory {
     required this.lon,
   });
 
-  factory ListStory.fromJson(String str) => ListStory.fromMap(json.decode(str));
+  factory Story.fromJson(String str) => Story.fromMap(json.decode(str));
 
   String toJson() => json.encode(toMap());
 
-  factory ListStory.fromMap(Map<String, dynamic> json) => ListStory(
+  factory Story.fromMap(Map<String, dynamic> json) => Story(
         id: json["id"],
         name: json["name"],
         description: json["description"],

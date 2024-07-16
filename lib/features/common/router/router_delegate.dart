@@ -27,6 +27,7 @@ class MyRouteDelegate extends RouterDelegate
   bool? isLoggedIn;
   bool isRegister = false;
   bool isAddStory = false;
+  bool isStory = false;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +47,7 @@ class MyRouteDelegate extends RouterDelegate
           return false;
         }
 
+        isStory = false;
         isAddStory = false;
         isRegister = false;
         selectedStory = null;

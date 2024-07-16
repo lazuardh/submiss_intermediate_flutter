@@ -25,24 +25,29 @@ class _StoryPageState extends State<StoryPage> {
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_scrollListener);
+    final apiProvider = context.read<StoryProvider>();
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent) {
+        if (apiProvider.pageItems != null) {
+          apiProvider.fetchStories();
+        }
+      }
+    });
+
+    Future.microtask(() async => apiProvider.fetchStories());
   }
 
   @override
   void dispose() {
-    _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
     super.dispose();
   }
 
-  void _scrollListener() {
-    final provider = context.read<StoryProvider>();
-    if (_scrollController.position.pixels >=
-            _scrollController.position.maxScrollExtent &&
-        !provider.isLoadingMore &&
-        provider.hasMoreStories) {
-      provider.getMoreStories();
-    }
+  Future<void> _refreshStories() async {
+    final apiProvider = context.read<StoryProvider>();
+    await apiProvider.refreshStories();
   }
 
   @override
@@ -67,94 +72,93 @@ class _StoryPageState extends State<StoryPage> {
                 color: AppColors.white,
               ),
       ),
-      body: CustomScrollView(
-        controller: _scrollController,
-        slivers: [
-          SliverAppBar(
-            elevation: 0,
-            centerTitle: true,
-            pinned: true,
-            backgroundColor: AppColors.red,
-            title: Text(
-              "Story",
-              style: AppTextStyle.semiBold.copyWith(
-                color: AppColors.white,
-                fontSize: AppFontSize.large,
-              ),
-            ),
-            actions: [
-              IconButton(
-                onPressed: () => widget.onAddStory(),
-                icon: const Icon(
-                  Icons.add_a_photo,
+      body: RefreshIndicator(
+        onRefresh: _refreshStories,
+        child: CustomScrollView(
+          controller: _scrollController,
+          slivers: [
+            SliverAppBar(
+              elevation: 0,
+              centerTitle: true,
+              pinned: true,
+              backgroundColor: AppColors.red,
+              title: Text(
+                "Story",
+                style: AppTextStyle.semiBold.copyWith(
                   color: AppColors.white,
+                  fontSize: AppFontSize.large,
                 ),
               ),
-            ],
-          ),
-          Consumer<StoryProvider>(
-            builder: (context, provider, child) {
-              if (provider.state == StoryState.loading &&
-                  provider.stories.isEmpty) {
+              actions: [
+                IconButton(
+                  onPressed: () => widget.onAddStory(),
+                  icon: const Icon(
+                    Icons.add_a_photo,
+                    color: AppColors.white,
+                  ),
+                ),
+              ],
+            ),
+            Consumer<StoryProvider>(
+              builder: (context, provider, _) {
+                final state = provider.state;
+                if (state == StoryState.loading) {
+                  return const SliverFillRemaining(
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                } else if (state == StoryState.error) {
+                  return SliverFillRemaining(
+                    child: Center(
+                      child: Text(
+                        provider.message,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  );
+                } else if (provider.state == StoryState.loaded) {
+                  final story = provider.stories;
+                  return SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      childCount:
+                          story.length + (provider.pageItems != null ? 1 : 0),
+                      (context, index) {
+                        if (index == story.length &&
+                            provider.pageItems != null) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(8),
+                              child: CircularProgressIndicator(),
+                            ),
+                          );
+                        }
+
+                        return GestureDetector(
+                          onTap: () => widget.onTapped(story[index].id),
+                          child: _cardStory(context, story[index]),
+                        );
+                      },
+                    ),
+                  );
+                }
                 return const SliverFillRemaining(
                   child: Center(
-                    child: CircularProgressIndicator(),
+                    child: Text('No Data'),
                   ),
                 );
-              } else if (provider.state == StoryState.error) {
-                return SliverFillRemaining(
-                  child: Center(
-                    child: Text(
-                      provider.message,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                );
-              } else if (provider.state == StoryState.noData) {
-                return SliverFillRemaining(
-                  child: Center(
-                    child: Text(
-                      provider.message,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                );
-              } else if (provider.state == StoryState.hasData) {
-                return SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      if (index < provider.stories.length) {
-                        final story = provider.stories[index];
-                        return GestureDetector(
-                          onTap: () => widget.onTapped(story.id),
-                          child: _cardStory(context, story),
-                        );
-                      } else {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                    },
-                    childCount: provider.stories.length +
-                        (provider.isLoadingMore ? 1 : 0),
-                  ),
-                );
-              }
-              return const SliverFillRemaining(
-                child: Center(
-                  child: Text('Unknown state'),
-                ),
-              );
-            },
-          ),
-        ],
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Container _cardStory(BuildContext context, ListStory story) {
+  Container _cardStory(BuildContext context, Story story) {
     DateTime timestamp = DateTime.parse(story.createdAt.toString());
     String formattedDate = DateFormat('dd MMMM yyyy').format(timestamp);
+    String formattedJam = DateFormat('HH:mm:ss').format(timestamp);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6.0),
       decoration: BoxDecoration(
@@ -242,6 +246,14 @@ class _StoryPageState extends State<StoryPage> {
                 const SizedBox(height: 12.0),
                 Text(
                   'Uploaded $formattedDate',
+                  style: AppTextStyle.regular.copyWith(
+                    color: Colors.white,
+                    fontSize: AppFontSize.small,
+                  ),
+                ),
+                const SizedBox(height: 12.0),
+                Text(
+                  'Jam $formattedJam',
                   style: AppTextStyle.regular.copyWith(
                     color: Colors.white,
                     fontSize: AppFontSize.small,

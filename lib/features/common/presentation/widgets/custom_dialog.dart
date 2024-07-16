@@ -20,7 +20,7 @@ extension CustomDialog on context.BuildContext {
 
         void close(bool close) {
           if (close) {
-            Navigator.pop(ctx);
+            Navigator.of(ctx).pop();
             if (onPressed != null) onPressed();
           }
         }
@@ -113,7 +113,7 @@ extension CustomDialog on context.BuildContext {
         bool isClose = false;
 
         void close(bool close) {
-          if (close) Navigator.pop(this);
+          if (close) Navigator.of(this).pop();
         }
 
         Timer.periodic(const Duration(seconds: 2), (timer) {

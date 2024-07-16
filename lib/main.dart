@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
 import '../../../lib.dart';
@@ -46,7 +47,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider<StoryProvider>(
           create: (context) => StoryProvider(
             StoryRepository(
-              StoryRemoteDataSource(),
+              StoryRemoteDataSource(Client()),
               AuthRepository(
                 AuthRemoteDataSource(),
               ),
@@ -56,7 +57,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider<DetailStoryProvider>(
           create: (context) => DetailStoryProvider(
             StoryRepository(
-              StoryRemoteDataSource(),
+              StoryRemoteDataSource(Client()),
               AuthRepository(
                 AuthRemoteDataSource(),
               ),
@@ -69,7 +70,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider<UploadProvider>(
           create: (context) => UploadProvider(
             StoryRepository(
-              StoryRemoteDataSource(),
+              StoryRemoteDataSource(Client()),
               AuthRepository(
                 AuthRemoteDataSource(),
               ),

@@ -202,7 +202,7 @@ class _LoginPageState extends State<LoginPage> {
         bool isClose = false;
 
         void close(bool close) {
-          if (close) Navigator.pop(context);
+          if (close) Navigator.of(context).pop();
         }
 
         Timer.periodic(const Duration(seconds: 2), (timer) {

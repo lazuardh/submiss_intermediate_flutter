@@ -1,1 +1,1 @@
-enum StoryState { loading, noData, hasData, error }
+enum StoryState { initial, loading, loaded, error, noData }

@@ -4,7 +4,11 @@ import 'package:http/http.dart' as http;
 import '../../../../lib.dart';
 
 class StoryRemoteDataSource {
-  Future<Story> getAllStory(
+  final http.Client client;
+
+  StoryRemoteDataSource(this.client);
+
+  Future<StoryResponse> getAllStory(
     String token, {
     required int page,
     required int size,
@@ -16,13 +20,15 @@ class StoryRemoteDataSource {
       },
     );
 
+    print('${UrlConstant.stories}?page=$page&size=$size');
+
     final message = jsonDecode(response.body);
 
     if (response.statusCode == 200) {
-      return Story.fromJson(response.body);
+      return StoryResponse.fromJson(response.body);
     }
 
-    throw Exception(Story.fromJson(message['message']));
+    throw Exception(StoryResponse.fromJson(message['message']));
   }
 
   Future<ResponseDetailStory> detailStory(String token, String id) async {

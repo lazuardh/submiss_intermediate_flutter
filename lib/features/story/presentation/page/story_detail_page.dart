@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import '../../../../lib.dart';
 
@@ -18,39 +19,23 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: AppColors.red,
-      //   leading: IconButton(
-      //     onPressed: () {
-      //       Navigator.of(context).pop();
-      //     },
-      //     icon: const Icon(
-      //       Icons.arrow_back_ios_new,
-      //       color: AppColors.white,
-      //     ),
-      //   ),
-      //   title: Text(
-      //     "Detail Story",
-      //     style: AppTextStyle.bold.copyWith(
-      //       color: AppColors.white,
-      //       fontSize: AppFontSize.large,
-      //     ),
-      //   ),
-      //   actions: [
-      //     IconButton(
-      //       onPressed: () {},
-      //       icon: const Icon(
-      //         Icons.book,
-      //         color: AppColors.white,
-      //       ),
-      //     ),
-      //   ],
-      // ),
+      appBar: AppBar(
+        backgroundColor: AppColors.red,
+        automaticallyImplyLeading: false,
+        elevation: 0,
+        title: Text(
+          "Detail Story",
+          style: AppTextStyle.bold.copyWith(
+            color: AppColors.white,
+            fontSize: AppFontSize.large,
+          ),
+        ),
+      ),
       body: SafeArea(
         child: ChangeNotifierProvider<DetailStoryProvider>(
           create: (context) => DetailStoryProvider(
             StoryRepository(
-              StoryRemoteDataSource(),
+              StoryRemoteDataSource(Client()),
               AuthRepository(AuthRemoteDataSource()),
             ),
             id: widget.id,
@@ -65,8 +50,10 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                 return Center(
                   child: Text(provider.message),
                 );
-              } else if (provider.state == StoryState.hasData) {
-                return _StoryDetailWrapper(story: provider.detailStory);
+              } else if (provider.state == StoryState.loaded) {
+                return _StoryDetailWrapper(
+                  story: provider.detailStory,
+                );
               } else {
                 return Center(child: Text(provider.message));
               }
@@ -97,35 +84,6 @@ class _StoryDetailWrapper extends StatelessWidget {
           borderRadius: 0,
           fit: BoxFit.cover,
           isNetworkImage: true,
-        ),
-        Container(
-          color: const Color.fromARGB(36, 255, 255, 255),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(
-                  Icons.arrow_back_ios_new,
-                  color: Color.fromARGB(162, 242, 120, 107),
-                ),
-              ),
-              Text(
-                "Detail Story",
-                style: AppTextStyle.bold.copyWith(
-                  color: const Color.fromARGB(162, 242, 120, 107),
-                  fontSize: AppFontSize.large,
-                ),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.bookmark,
-                  color: Color.fromARGB(162, 242, 120, 107),
-                ),
-              ),
-            ],
-          ),
         ),
         DraggableScrollableSheet(
           initialChildSize: 0.7,
