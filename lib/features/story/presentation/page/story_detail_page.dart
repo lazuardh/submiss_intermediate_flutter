@@ -5,10 +5,14 @@ import '../../../../lib.dart';
 
 class StoryDetailPage extends StatefulWidget {
   final String id;
+  final Function() onMapPage;
+  final Function(String) onTapped;
 
   const StoryDetailPage({
     Key? key,
     required this.id,
+    required this.onMapPage,
+    required this.onTapped,
   }) : super(key: key);
 
   @override
@@ -30,6 +34,15 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
             fontSize: AppFontSize.large,
           ),
         ),
+        actions: [
+          IconButton(
+            onPressed: () => widget.onMapPage(),
+            icon: const Icon(
+              Icons.map,
+              color: AppColors.white,
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: ChangeNotifierProvider<DetailStoryProvider>(
@@ -42,21 +55,29 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
           ),
           child: Consumer<DetailStoryProvider>(
             builder: (ctx, provider, _) {
-              if (provider.state == StoryState.loading) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else if (provider.state == StoryState.error) {
-                return Center(
-                  child: Text(provider.message),
-                );
-              } else if (provider.state == StoryState.loaded) {
-                return _StoryDetailWrapper(
-                  story: provider.detailStory,
-                );
-              } else {
-                return Center(child: Text(provider.message));
-              }
+              final state = provider.state;
+              return state.map(
+                loading: (value) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                },
+                loaded: (value) {
+                  return _StoryDetailWrapper(
+                    story: value.data,
+                  );
+                },
+                error: (value) {
+                  return Center(
+                    child: Text(provider.message),
+                  );
+                },
+                initial: (value) {
+                  return Center(
+                    child: Text(provider.message),
+                  );
+                },
+              );
             },
           ),
         ),

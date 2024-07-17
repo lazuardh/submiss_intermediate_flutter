@@ -15,6 +15,7 @@ class StoryRepository {
         page: page,
         size: limit,
       );
+
       return story.list;
     } else {
       throw Exception("User not logged in");

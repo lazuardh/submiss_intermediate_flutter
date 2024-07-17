@@ -28,19 +28,16 @@ class AuthRemoteDataSource {
   Future<UserResponse> login(String email, String password) async {
     final response = await http.post(
       Uri.parse(UrlConstant.login),
-      body: jsonEncode({
+      body: {
         'email': email,
         'password': password,
-      }),
-      headers: {
-        'Content-Type': 'application/json',
       },
     );
 
+    final responseData = jsonDecode(response.body);
     if (response.statusCode == 200) {
-      return UserResponse.fromJson(jsonDecode(response.body));
+      return UserResponse.fromJson(responseData);
     } else {
-      final responseData = jsonDecode(response.body);
       throw Exception(responseData['message']);
     }
   }

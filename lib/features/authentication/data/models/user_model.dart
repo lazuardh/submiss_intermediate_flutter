@@ -1,86 +1,50 @@
-import 'dart:convert';
+import 'package:freezed_annotation/freezed_annotation.dart';
+part 'user_model.g.dart';
+part 'user_model.freezed.dart';
 
-class UserResponse {
-  bool error;
-  String message;
-  LoginResult loginResult;
+@freezed
+class User with _$User {
+  const factory User({
+    required String? email,
+    required String? password,
+  }) = _User;
 
-  UserResponse({
-    required this.error,
-    required this.message,
-    required this.loginResult,
-  });
-
-  factory UserResponse.fromJson(Map<String, dynamic> json) => UserResponse(
-        error: json["error"],
-        message: json["message"],
-        loginResult: LoginResult.fromJson(json["loginResult"]),
-      );
-
-  Map<String, dynamic> toJson() => {
-        "error": error,
-        "message": message,
-        "loginResult": loginResult.toJson(),
-      };
+  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 }
 
-class LoginResult {
-  final String userId;
-  final String name;
-  final String token;
+// class User {
+//   String? email;
+//   String? password;
 
-  LoginResult({
-    required this.userId,
-    required this.name,
-    required this.token,
-  });
+//   User({
+//     this.email,
+//     this.password,
+//   });
 
-  factory LoginResult.fromJson(Map<String, dynamic> json) => LoginResult(
-        userId: json["userId"],
-        name: json["name"],
-        token: json["token"],
-      );
+//   @override
+//   String toString() => 'User(email: $email, password: $password)';
 
-  Map<String, dynamic> toJson() => {
-        "userId": userId,
-        "name": name,
-        "token": token,
-      };
-}
+//   factory User.fromMap(Map<String, dynamic> json) => User(
+//         email: json["email"],
+//         password: json["password"],
+//       );
 
-class User {
-  String? email;
-  String? password;
+//   Map<String, dynamic> toMap() => {
+//         "email": email,
+//         "password": password,
+//       };
 
-  User({
-    this.email,
-    this.password,
-  });
+//   String toJson() => json.encode(toMap());
 
-  @override
-  String toString() => 'User(email: $email, password: $password)';
+//   factory User.fromJson(String source) => User.fromMap(json.decode(source));
 
-  factory User.fromMap(Map<String, dynamic> json) => User(
-        email: json["email"],
-        password: json["password"],
-      );
+//   @override
+//   bool operator ==(Object other) {
+//     if (identical(this, other)) return true;
 
-  Map<String, dynamic> toMap() => {
-        "email": email,
-        "password": password,
-      };
+//     return other is User && other.email == email && other.password == password;
+//   }
 
-  String toJson() => json.encode(toMap());
-
-  factory User.fromJson(String source) => User.fromMap(json.decode(source));
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is User && other.email == email && other.password == password;
-  }
-
-  @override
-  int get hashCode => Object.hash(email, password);
-}
+//   @override
+//   int get hashCode => Object.hash(email, password);
+// }

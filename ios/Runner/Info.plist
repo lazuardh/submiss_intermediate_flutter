@@ -41,6 +41,10 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+			<string>location</string>
+	</array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
@@ -51,5 +55,11 @@
     <string>Buka privasi ini untuk akses mikrofon.</string>
     <key>NSPhotoLibraryUsageDescription </key>
     <string>Buka privasi ini untuk akses galeri foto.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>The app needs user's location permission</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>The app needs user's location permission</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>The app needs location service permission</string>
 </dict>
 </plist>

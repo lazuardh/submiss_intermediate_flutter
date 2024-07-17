@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../lib.dart';
@@ -30,7 +32,7 @@ class AuthRepository {
 
     print("id user me: ${userResponse.loginResult.userId}");
 
-    await preferences.setString(userKey, user.toJson());
+    await preferences.setString(userKey, jsonEncode(user.toJson()));
     await preferences.setString(tokenKey, userResponse.loginResult.token);
     // await Future.delayed(const Duration(seconds: 2));
 
@@ -53,7 +55,7 @@ class AuthRepository {
   Future<bool> saveUser(User user) async {
     final preferences = await SharedPreferences.getInstance();
     await Future.delayed(const Duration(seconds: 2));
-    return preferences.setString(userKey, user.toJson());
+    return preferences.setString(userKey, jsonEncode(user.toJson()));
   }
 
   Future<bool> deleteUser() async {
@@ -68,7 +70,7 @@ class AuthRepository {
     final json = preferences.getString(userKey) ?? "";
     User? user;
     try {
-      user = User.fromJson(json);
+      user = User.fromJson(jsonDecode(json.toString()));
     } catch (e) {
       user = null;
     }

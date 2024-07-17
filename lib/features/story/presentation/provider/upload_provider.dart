@@ -28,6 +28,7 @@ class UploadProvider extends ChangeNotifier {
     } catch (e) {
       isUploading = false;
       message = e.toString();
+      print(message);
       notifyListeners();
     }
   }

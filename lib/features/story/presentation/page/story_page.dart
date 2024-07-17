@@ -102,50 +102,56 @@ class _StoryPageState extends State<StoryPage> {
             Consumer<StoryProvider>(
               builder: (context, provider, _) {
                 final state = provider.state;
-                if (state == StoryState.loading) {
-                  return const SliverFillRemaining(
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                } else if (state == StoryState.error) {
-                  return SliverFillRemaining(
-                    child: Center(
-                      child: Text(
-                        provider.message,
-                        textAlign: TextAlign.center,
+                return state.map(
+                  loading: (value) {
+                    return const SliverFillRemaining(
+                      child: Center(
+                        child: CircularProgressIndicator(),
                       ),
-                    ),
-                  );
-                } else if (provider.state == StoryState.loaded) {
-                  final story = provider.stories;
-                  return SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      childCount:
-                          story.length + (provider.pageItems != null ? 1 : 0),
-                      (context, index) {
-                        if (index == story.length &&
-                            provider.pageItems != null) {
-                          return const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(8),
-                              child: CircularProgressIndicator(),
-                            ),
-                          );
-                        }
+                    );
+                  },
+                  loaded: (value) {
+                    final story = value.data;
+                    return SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        childCount:
+                            story.length + (provider.pageItems != null ? 1 : 0),
+                        (context, index) {
+                          if (index == story.length &&
+                              provider.pageItems != null) {
+                            return const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(8),
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          }
 
-                        return GestureDetector(
-                          onTap: () => widget.onTapped(story[index].id),
-                          child: _cardStory(context, story[index]),
-                        );
-                      },
-                    ),
-                  );
-                }
-                return const SliverFillRemaining(
-                  child: Center(
-                    child: Text('No Data'),
-                  ),
+                          return GestureDetector(
+                            onTap: () => widget.onTapped(story[index].id),
+                            child: _cardStory(context, story[index]),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  error: (value) {
+                    return SliverFillRemaining(
+                      child: Center(
+                        child: Text(
+                          value.message,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    );
+                  },
+                  initial: (_) {
+                    return const SliverFillRemaining(
+                      child: Center(
+                        child: Text('No Data'),
+                      ),
+                    );
+                  },
                 );
               },
             ),

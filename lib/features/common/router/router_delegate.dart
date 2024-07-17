@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:submiss_intermediate/features/maps/presentation/pages/map_page.dart';
 
 import '../../../lib.dart';
 
@@ -22,12 +23,14 @@ class MyRouteDelegate extends RouterDelegate
   GlobalKey<NavigatorState> get navigatorKey => _navigatorKey;
 
   String? selectedStory;
+  String? selectedMap;
 
   List<Page> historyStack = [];
   bool? isLoggedIn;
   bool isRegister = false;
   bool isAddStory = false;
   bool isStory = false;
+  bool isMap = false;
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +54,8 @@ class MyRouteDelegate extends RouterDelegate
         isAddStory = false;
         isRegister = false;
         selectedStory = null;
+        selectedMap = null;
+        isMap = false;
         notifyListeners();
         return true;
       },
@@ -126,7 +131,25 @@ class MyRouteDelegate extends RouterDelegate
           MaterialPage(
             key: const ValueKey('StoryDetailPage'),
             child: StoryDetailPage(
+              onMapPage: () {
+                isMap = true;
+                notifyListeners();
+              },
+              onTapped: (String map) {
+                // selectedMap = map;
+                // notifyListeners();
+              },
               id: selectedStory!,
+            ),
+          ),
+        if (isMap == true)
+          MaterialPage(
+            key: const ValueKey("MapPage"),
+            child: MapPage(
+              onMapPage: () {
+                isMap = false;
+                notifyListeners();
+              },
             ),
           ),
       ];

@@ -23,9 +23,11 @@ class StoryRemoteDataSource {
     print('${UrlConstant.stories}?page=$page&size=$size');
 
     final message = jsonDecode(response.body);
+    print("============== APi ================");
+    print(message);
 
     if (response.statusCode == 200) {
-      return StoryResponse.fromJson(response.body);
+      return StoryResponse.fromJson(jsonDecode(response.body));
     }
 
     throw Exception(StoryResponse.fromJson(message['message']));
@@ -40,10 +42,10 @@ class StoryRemoteDataSource {
     final message = jsonDecode(response.body);
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      return ResponseDetailStory.fromMap(data);
+      return ResponseDetailStory.fromJson(data);
     }
 
-    throw Exception(ResponseDetailStory.fromMap(message['mesage']));
+    throw Exception(ResponseDetailStory.fromJson(message['mesage']));
   }
 
   Future<UploadResponse> uploadStory(
@@ -87,9 +89,9 @@ class StoryRemoteDataSource {
     print(streamedResponse.persistentConnection);
 
     if (StatusCode == 201) {
-      final UploadResponse uploadResponse = UploadResponse.fromJson(
-        responseData,
-      );
+      final Map<String, dynamic> jsonResponse = jsonDecode(responseData);
+      final UploadResponse uploadResponse =
+          UploadResponse.fromJson(jsonResponse);
       return uploadResponse;
     }
 

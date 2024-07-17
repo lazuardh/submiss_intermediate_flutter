@@ -21,6 +21,14 @@ class _StoryAddState extends State<StoryAdd> {
   final List<TextFieldEntity> _description = TextFieldEntity.authAddStory;
 
   @override
+  void initState() {
+    for (var dt in _description) {
+      dt.textController.text = '';
+    }
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromRGBO(243, 244, 246, 1),
@@ -104,6 +112,8 @@ class _StoryAddState extends State<StoryAdd> {
   }
 
   _onUpload() async {
+    FocusScope.of(context).unfocus();
+
     final storyProvider = context.read<CameraProvider>();
     final uploadProvider = context.read<UploadProvider>();
     final refreshProvider = context.read<StoryProvider>();
@@ -122,7 +132,7 @@ class _StoryAddState extends State<StoryAdd> {
     await uploadProvider.upload(
       newBytes,
       fileName,
-      _description[0].textController.text,
+      _description[0].textController.text.toString(),
     );
 
     if (uploadProvider.uploadResponse != null) {
@@ -133,6 +143,8 @@ class _StoryAddState extends State<StoryAdd> {
     scaffoldMessengerState.showSnackBar(
       SnackBar(content: Text(uploadProvider.message)),
     );
+
+    print(uploadProvider.message);
 
     refreshProvider.refreshStories();
   }

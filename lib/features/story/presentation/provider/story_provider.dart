@@ -9,11 +9,10 @@ class StoryProvider extends ChangeNotifier {
 
   int? pageItems = 1;
   int limit = 5;
-  bool storyError = false;
 
-  List<Story> stories = [];
+  // List<Story> stories = [];
 
-  StoryState _state = StoryState.initial;
+  StoryState _state = const StoryState.initial();
   StoryState get state => _state;
 
   String _message = '';
@@ -21,20 +20,18 @@ class StoryProvider extends ChangeNotifier {
 
   Future<void> refreshStories() async {
     try {
-      _state = StoryState.loading;
+      _state = const StoryState.loading();
       notifyListeners();
 
       final response = await _storyRepository.getStories(1, limit);
-      stories = response;
-      pageItems = 2;
-      _message = "Refreshing Story Success";
-      storyError = false;
-      _state = StoryState.loaded;
+      // stories = response;
+      pageItems = 1;
+
+      _state = StoryState.loaded(response);
       notifyListeners();
     } catch (e) {
-      _state = StoryState.error;
-      storyError = true;
-      _message = '$e';
+      _state = const StoryState.error('Failed to Load Data');
+      print('$e');
       notifyListeners();
     }
   }
@@ -42,7 +39,7 @@ class StoryProvider extends ChangeNotifier {
   Future<void> fetchStories() async {
     try {
       if (pageItems == 1) {
-        _state = StoryState.loading;
+        _state = const StoryState.loading();
         notifyListeners();
       }
 
@@ -54,16 +51,15 @@ class StoryProvider extends ChangeNotifier {
         pageItems = pageItems! + 1;
       }
 
-      stories.addAll(response);
+      // stories.addAll(response);
+      _state = StoryState.loaded(response);
 
-      _message = "Fetching Story Success";
-      storyError = false;
-      _state = StoryState.loaded;
       notifyListeners();
     } catch (e) {
-      _state = StoryState.error;
-      storyError = true;
+      _state = const StoryState.error("failed to load data");
       _message = '$e';
+      print("========= Provider =============");
+      print(_message);
       notifyListeners();
     }
   }

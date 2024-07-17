@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../lib.dart';
 
-enum AuthState { loading, noData, hasData, error }
-
 /// TODO mengelola state aplikasi
 class AuthProvider extends ChangeNotifier {
   final AuthRepository _repository;
@@ -23,17 +21,17 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> signUp(String name, String email, String password) async {
     isLoadingRegister = true;
-    _state = AuthState.loading;
+    _state = const AuthState.loading();
     notifyListeners();
 
     try {
       final response = await _repository.createUser(name, email, password);
 
       _message = response;
-      _state = AuthState.hasData;
+      _state = const AuthState.loaded();
     } catch (error) {
       _message = '$error';
-      _state = AuthState.error;
+      _state = const AuthState.error();
     } finally {
       isLoadingRegister = false;
       notifyListeners();

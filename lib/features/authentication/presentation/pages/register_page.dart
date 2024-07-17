@@ -205,7 +205,7 @@ class _RegisterPageState extends State<RegisterPage> {
             _registerEntity[2].textController.text,
           );
 
-      if (state.state == AuthState.hasData) {
+      if (state.state == const AuthState.loaded()) {
         widget._onRegister();
       } else if (state.state == AuthState.error) {
         errorDialog(message: state.message);
