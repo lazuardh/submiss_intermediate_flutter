@@ -37,19 +37,15 @@ class StoryRepository {
   Future<UploadResponse> postStory(
     List<int> bytes,
     String filename,
-    String description, {
+    String description,
     double? lat,
     double? lon,
-  }) async {
+  ) async {
     final token = await _authRepository.getToken();
 
     if (token != null) {
       final addStatus = await _storyRemoteDataSource.uploadStory(
-        token,
-        bytes,
-        filename,
-        description,
-      );
+          token, bytes, filename, description, lat, lon);
 
       print("added story : $addStatus");
 

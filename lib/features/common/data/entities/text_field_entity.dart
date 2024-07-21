@@ -149,6 +149,26 @@ class TextFieldEntity {
         return null;
       },
     ),
+    TextFieldEntity(
+      textController: TextEditingController(text: ''),
+      hint: "Lattitude",
+      keyboardType: TextInputType.number,
+      focusNode: FocusNode(),
+      textInputAction: TextInputAction.next,
+      validator: (value) {
+        return null;
+      },
+    ),
+    TextFieldEntity(
+      textController: TextEditingController(text: ''),
+      hint: "longtitude",
+      keyboardType: TextInputType.number,
+      focusNode: FocusNode(),
+      textInputAction: TextInputAction.done,
+      validator: (value) {
+        return null;
+      },
+    ),
   ];
 
   static final List<TextFieldEntity> authForgotPassword = [

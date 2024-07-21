@@ -10,7 +10,7 @@ class StoryProvider extends ChangeNotifier {
   int? pageItems = 1;
   int limit = 5;
 
-  // List<Story> stories = [];
+  List<Story> stories = [];
 
   StoryState _state = const StoryState.initial();
   StoryState get state => _state;
@@ -24,10 +24,10 @@ class StoryProvider extends ChangeNotifier {
       notifyListeners();
 
       final response = await _storyRepository.getStories(1, limit);
-      // stories = response;
+      stories = response;
       pageItems = 1;
 
-      _state = StoryState.loaded(response);
+      _state = StoryState.loaded(stories);
       notifyListeners();
     } catch (e) {
       _state = const StoryState.error('Failed to Load Data');
@@ -51,8 +51,8 @@ class StoryProvider extends ChangeNotifier {
         pageItems = pageItems! + 1;
       }
 
-      // stories.addAll(response);
-      _state = StoryState.loaded(response);
+      stories.addAll(response);
+      _state = StoryState.loaded(stories);
 
       notifyListeners();
     } catch (e) {

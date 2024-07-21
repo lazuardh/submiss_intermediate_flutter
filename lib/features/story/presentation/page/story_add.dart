@@ -8,9 +8,11 @@ import '../../../../lib.dart';
 
 class StoryAdd extends StatefulWidget {
   final Function() onAddStory;
+  final Function() onAddMap;
   const StoryAdd({
     super.key,
     required this.onAddStory,
+    required this.onAddMap,
   });
 
   @override
@@ -30,6 +32,13 @@ class _StoryAddState extends State<StoryAdd> {
 
   @override
   Widget build(BuildContext context) {
+    final latLangData = context.watch<UploadProvider>();
+
+    if (latLangData.latLng != null) {
+      _description[1].textController.text = latLangData.latitude.toString();
+      _description[2].textController.text = latLangData.longitude.toString();
+    }
+
     return Scaffold(
       backgroundColor: const Color.fromRGBO(243, 244, 246, 1),
       resizeToAvoidBottomInset: true,
@@ -84,11 +93,55 @@ class _StoryAddState extends State<StoryAdd> {
                 ],
               ),
               const Gap(height: 20),
-              Column(
+              CustomTextFormField(
+                  textFieldEntity: _description[0], maxLines: 5),
+              const Gap(height: 10),
+              Row(
                 children: [
-                  CustomTextFormField(
-                    textFieldEntity: _description[0],
-                    maxLines: 5,
+                  Expanded(
+                    flex: 4,
+                    child: CustomTextFormField(
+                      textFieldEntity: _description[1],
+                      onChanged: (value) {
+                        if (value.isEmpty) {
+                          latLangData.setLatitude(null);
+                        }
+                        latLangData.setLatitude(double.tryParse(value));
+                      },
+                    ),
+                  ),
+                  const Gap(width: 10),
+                  Expanded(
+                    flex: 4,
+                    child: CustomTextFormField(
+                      textFieldEntity: _description[2],
+                      onChanged: (value) {
+                        if (value.isEmpty) {
+                          latLangData.setLongitude(null);
+                        }
+                        latLangData.setLongitude(double.tryParse(value));
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: IconButton(
+                      onPressed: () => _clearlatLng(),
+                      icon: const Icon(
+                        Icons.delete,
+                        color: AppColors.red,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: IconButton(
+                      onPressed: () => widget.onAddMap(),
+                      icon: const Icon(
+                        Icons.add_location_alt_rounded,
+                        color: AppColors.red,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -111,6 +164,21 @@ class _StoryAddState extends State<StoryAdd> {
     );
   }
 
+  _clearlatLng() {
+    print("=========== Clearing latitude and longitude ===========");
+    final latLangData = context.read<UploadProvider>();
+    _description[1].textController.clear();
+    _description[2].textController.clear();
+    latLangData.clearLatLng();
+
+    final ScaffoldMessengerState scaffoldMessengerState =
+        ScaffoldMessenger.of(context);
+
+    scaffoldMessengerState.showSnackBar(
+      const SnackBar(content: Text("clearing Textfield Success")),
+    );
+  }
+
   _onUpload() async {
     FocusScope.of(context).unfocus();
 
@@ -129,10 +197,22 @@ class _StoryAddState extends State<StoryAdd> {
     final bytes = await imageFile.readAsBytes();
     final newBytes = await uploadProvider.compressImage(bytes);
 
+    double? latitude = _description[1].textController.text.isEmpty
+        ? null
+        : double.tryParse(_description[1].textController.text);
+    double? longitude = _description[2].textController.text.isEmpty
+        ? null
+        : double.tryParse(_description[2].textController.text);
+
+    print('Latitude: $latitude');
+    print('Longitude: $longitude');
+
     await uploadProvider.upload(
       newBytes,
       fileName,
       _description[0].textController.text.toString(),
+      latitude,
+      longitude,
     );
 
     if (uploadProvider.uploadResponse != null) {

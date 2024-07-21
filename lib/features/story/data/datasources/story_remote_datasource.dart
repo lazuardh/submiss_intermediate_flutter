@@ -19,7 +19,7 @@ class StoryRemoteDataSource {
         'Authorization': 'Bearer $token',
       },
     );
-
+    print("============== Infinite Scroll page ================");
     print('${UrlConstant.stories}?page=$page&size=$size');
 
     final message = jsonDecode(response.body);
@@ -48,12 +48,8 @@ class StoryRemoteDataSource {
     throw Exception(ResponseDetailStory.fromJson(message['mesage']));
   }
 
-  Future<UploadResponse> uploadStory(
-    String token,
-    List<int> bytes,
-    String filename,
-    String description,
-  ) async {
+  Future<UploadResponse> uploadStory(String token, List<int> bytes,
+      String filename, String description, double? lat, double? lon) async {
     final uri = Uri.parse(UrlConstant.stories);
     final request = http.MultipartRequest('POST', uri);
 
@@ -70,6 +66,8 @@ class StoryRemoteDataSource {
 
     final Map<String, String> fields = {
       'description': description,
+      'lat': jsonEncode(lat),
+      'lon': jsonEncode(lon),
     };
 
     request.files.add(multipartFile);
@@ -77,7 +75,7 @@ class StoryRemoteDataSource {
     request.headers.addAll(headers);
 
     final http.StreamedResponse streamedResponse = await request.send();
-    final int StatusCode = streamedResponse.statusCode;
+    final int statusCode = streamedResponse.statusCode;
 
     final Uint8List responseList = await streamedResponse.stream.toBytes();
     final String responseData = String.fromCharCodes(responseList);
@@ -88,7 +86,7 @@ class StoryRemoteDataSource {
     print(streamedResponse.statusCode);
     print(streamedResponse.persistentConnection);
 
-    if (StatusCode == 201) {
+    if (statusCode == 201) {
       final Map<String, dynamic> jsonResponse = jsonDecode(responseData);
       final UploadResponse uploadResponse =
           UploadResponse.fromJson(jsonResponse);

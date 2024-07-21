@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:submiss_intermediate/features/maps/presentation/pages/map_page.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:submiss_intermediate/features/story/presentation/page/new_map_page.dart';
 
 import '../../../lib.dart';
 
@@ -23,14 +24,14 @@ class MyRouteDelegate extends RouterDelegate
   GlobalKey<NavigatorState> get navigatorKey => _navigatorKey;
 
   String? selectedStory;
-  String? selectedMap;
+  String? selectedLocation;
 
   List<Page> historyStack = [];
   bool? isLoggedIn;
   bool isRegister = false;
   bool isAddStory = false;
   bool isStory = false;
-  bool isMap = false;
+  bool isNewMap = false;
 
   @override
   Widget build(BuildContext context) {
@@ -50,12 +51,18 @@ class MyRouteDelegate extends RouterDelegate
           return false;
         }
 
-        isStory = false;
-        isAddStory = false;
-        isRegister = false;
-        selectedStory = null;
-        selectedMap = null;
-        isMap = false;
+        if (selectedLocation != null) {
+          selectedLocation = null;
+        } else if (selectedStory != null) {
+          selectedStory = null;
+        } else if (isNewMap) {
+          isNewMap = false;
+        } else if (isAddStory) {
+          isAddStory = false;
+        } else if (isRegister) {
+          isRegister = false;
+        }
+
         notifyListeners();
         return true;
       },
@@ -121,8 +128,22 @@ class MyRouteDelegate extends RouterDelegate
           MaterialPage(
             key: const ValueKey("addStory"),
             child: StoryAdd(
+              onAddMap: () {
+                isNewMap = true;
+                notifyListeners();
+              },
               onAddStory: () {
                 isAddStory = false;
+                notifyListeners();
+              },
+            ),
+          ),
+        if (isNewMap == true)
+          MaterialPage(
+            key: const ValueKey('NewMapPage'),
+            child: NewMapPage(
+              onAddMap: () {
+                isNewMap = false;
                 notifyListeners();
               },
             ),
@@ -131,25 +152,18 @@ class MyRouteDelegate extends RouterDelegate
           MaterialPage(
             key: const ValueKey('StoryDetailPage'),
             child: StoryDetailPage(
-              onMapPage: () {
-                isMap = true;
+              onTapped: (String location) {
+                selectedLocation = location;
                 notifyListeners();
-              },
-              onTapped: (String map) {
-                // selectedMap = map;
-                // notifyListeners();
               },
               id: selectedStory!,
             ),
           ),
-        if (isMap == true)
+        if (selectedLocation != null)
           MaterialPage(
             key: const ValueKey("MapPage"),
-            child: MapPage(
-              onMapPage: () {
-                isMap = false;
-                notifyListeners();
-              },
+            child: PickerScreen(
+              id: selectedLocation!,
             ),
           ),
       ];

@@ -47,7 +47,7 @@ class _MapPageState extends State<MapPage> {
         index: _index,
         children: const [
           MapsScreen(),
-          PickerScreen(),
+          // PickerScreen(),
           DirectionScreen(),
         ],
       ),
